@@ -241,7 +241,7 @@ class SeleneElement(with_metaclass(DelegatingMeta, IWebElement)):
         # type: (ISeleneWebElementLocator, IWebDriver) -> None
         self._locator = selene_locator
         self._webdriver = webdriver
-        self._actions_chains = ActionChains(webdriver)
+        self._actions_chains = ActionChains(webdriver._source.driver)
 
     def __str__(self):
         return self._locator.description
