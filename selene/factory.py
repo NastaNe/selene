@@ -1,6 +1,8 @@
 import atexit
+import logging
 
 from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.remote.webdriver import WebDriver
@@ -67,12 +69,15 @@ def __start_chrome():
                             desired_capabilities=config.desired_capabilities)
 
 
-def __start_firefox(name):
-    executable_path = "wires"
-    if name == Browser.MARIONETTE:
-        executable_path = GeckoDriverManager().install()
-    driver = webdriver.Firefox(capabilities=config.desired_capabilities,
-                               executable_path=executable_path)
+def __start_firefox():
+    logging.warning("Trying to start firefox browser")
+    try:
+        driver = webdriver.Firefox(capabilities=config.desired_capabilities)
+    except WebDriverException as ex:
+        logging.warning(ex)
+        logging.warning("Trying to start firefox with 'geckodriver'")
+        driver = webdriver.Firefox(capabilities=config.desired_capabilities,
+                                   executable_path=GeckoDriverManager().install())
     if config.maximize_window:
         driver.maximize_window()
     return driver
@@ -89,7 +94,7 @@ def __get_driver(name):
     elif name == Browser.PHANTOMJS:
         return __start_phantomjs()
     else:
-        return __start_firefox(name)
+        return __start_firefox()
 
 
 def _start_driver(name):
